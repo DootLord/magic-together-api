@@ -1,9 +1,8 @@
 import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, Card, CardUpdateData } from "./types";
-import express from 'express';
+import http from 'http';
 
-const app = express();
-const server = require('http').createServer(app);
+const server = http.createServer();
 
 const io = new Server<
     ClientToServerEvents,
@@ -12,16 +11,15 @@ const io = new Server<
     SocketData
 >(server, {
     cors: {
-        origin: "https://magic-together.dootlord.meme",
+        origin: "*",
         methods: ["GET", "POST"],
-    }
+    },
 });
 
-let cards: Card[] = []
+let cards: Card[] = [];
 
 io.on('connection', (socket) => {
     socket.emit('cards', cards);
-
 
     console.log('a user connected');
 
@@ -45,7 +43,7 @@ io.on('connection', (socket) => {
         } catch (error) {
             console.error('Error fetching card:', error);
         }
-    })
+    });
 
     socket.on('cardPositionChange', (updateData: CardUpdateData) => {
         const { index, x, y } = updateData;
