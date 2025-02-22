@@ -12,7 +12,8 @@ const io = new Server<
     SocketData
 >(server, {
     cors: {
-        origin: '*'
+        origin: "https://magic-together.dootlord.meme",
+        methods: ["GET", "POST"],
     }
 });
 
@@ -46,12 +47,12 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('cardPositionChange', (updateData: CardUpdateData ) => {
+    socket.on('cardPositionChange', (updateData: CardUpdateData) => {
         const { index, x, y } = updateData;
         console.log(`Card ${index} position changed to (${x}, ${y})`);
 
         //! Need better validation
-        if(index < 0 || index >= cards.length) {
+        if (index < 0 || index >= cards.length) {
             console.error('Invalid card index');
             return;
         }
@@ -63,6 +64,6 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000, () => {
+server.listen(3000, "0.0.0.0", () => {
     console.log('Server is running on port 3000');
 });
