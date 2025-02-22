@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, Card, CardUpdateData } from "./types";
 import express from 'express';
-import path from 'path';
 
 const app = express();
 const server = require('http').createServer(app);
@@ -18,8 +17,6 @@ const io = new Server<
 });
 
 let cards: Card[] = []
-
-app.use(express.static(path.join(__dirname, '../ui/dist')));
 
 io.on('connection', (socket) => {
     socket.emit('cards', cards);
@@ -65,8 +62,6 @@ io.on('connection', (socket) => {
         io.emit('cards', cards);
     });
 });
-
-
 
 server.listen(3000, () => {
     console.log('Server is running on port 3000');
