@@ -10,6 +10,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
     newCard: () => void;
     cardPositionChange: (cardUpdateData: CardUpdateData) => void;
+    clear: () => void;
 }
 
 export interface InterServerEvents {

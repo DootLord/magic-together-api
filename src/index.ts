@@ -51,6 +51,12 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('clear', async () => {
+        console.log('Clearing all cards');
+        cards = [];
+        io.emit('cards', cards);
+    });
+
     socket.on('cardPositionChange', (updateData: CardUpdateData) => {
         const { index, x, y } = updateData;
         console.log(`Card ${index} position changed to (${x}, ${y})`);
