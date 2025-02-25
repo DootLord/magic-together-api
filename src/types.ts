@@ -9,7 +9,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
     newCard: () => void;
-    tap: (index: number) => void;
+    tap: (cardUpdateData: { index: number }) => void;
     cardPositionChange: (cardUpdateData: CardUpdateData) => void;
     clear: () => void;
 }

@@ -59,7 +59,8 @@ io.on('connection', (socket) => {
         io.emit('cards', cards);
     });
 
-    socket.on('tap', (index: number) => {
+    socket.on('tap', (updateData: { index: number}) => {
+        const index = updateData.index;
         console.log(`Card ${index} tapped`);
 
         //! Need better validation
