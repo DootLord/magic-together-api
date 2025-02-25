@@ -6,7 +6,9 @@ import { RateLimiter } from './rateLimiter';
 
 const server = http.createServer();
 const cardLimit = parseInt(process.env.CARD_LIMIT || '50', 10);
-const rateLimiter = new RateLimiter(5, 60000); // 5 requests per minute
+const rateLimiter = new RateLimiter(
+    parseInt(process.env.NEW_CARD_PER_MINUTE || '50'), // 50 requests per minute by default
+    60000);
 
 const io = new Server<
     ClientToServerEvents,
@@ -35,7 +37,7 @@ io.on('connection', (socket) => {
 
         console.log('Generating new card');
         console.log("Requested by socket: ", socket.id);
-        
+
         try {
             const card = await fetchRandomCard();
 
