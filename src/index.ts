@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
 
     socket.on('newCard', async () => {
         if (!rateLimiter.tryRequest(socket.id)) {
-            socket.emit('error', 'Rate limit exceeded. Please wait before requesting more cards.');
+            // socket.emit('error', 'Rate limit exceeded. Please wait before requesting more cards.');
             return;
         }
 
@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
             const card = await fetchRandomCard();
 
             if (!card) {
-                socket.emit('error', 'Failed to fetch card');
+                // socket.emit('error', 'Failed to fetch card');
                 return;
             }
 
@@ -48,14 +48,14 @@ io.on('connection', (socket) => {
 
             if (cards.length > cardLimit) {
                 cards = [];
-                socket.emit('warning', 'Card limit reached. Resetting cards.');
+                // socket.emit('warning', 'Card limit reached. Resetting cards.');
             }
 
             io.emit('cards', cards);
 
         } catch (error) {
             console.error('Error fetching card:', error);
-            socket.emit('error', 'Internal server error');
+            // socket.emit('error', 'Internal server error');
         }
     });
 
