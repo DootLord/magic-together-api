@@ -36,7 +36,8 @@ io.on('connection', (socket) => {
                 name: cardJSON.name,
                 x: 0,
                 y: 0,
-                locked: false
+                locked: false,
+                tapped: false
             });
 
             
@@ -55,6 +56,20 @@ io.on('connection', (socket) => {
     socket.on('clear', async () => {
         console.log('Clearing all cards');
         cards = [];
+        io.emit('cards', cards);
+    });
+
+    socket.on('tap', (index: number) => {
+        console.log(`Card ${index} tapped`);
+
+        //! Need better validation
+        if (index < 0 || index >= cards.length) {
+            console.error('Invalid card index');
+            return;
+        }
+
+        cards[index].tapped = !cards[index].tapped;
+
         io.emit('cards', cards);
     });
 

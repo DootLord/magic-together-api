@@ -9,6 +9,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
     newCard: () => void;
+    tap: (index: number) => void;
     cardPositionChange: (cardUpdateData: CardUpdateData) => void;
     clear: () => void;
 }
@@ -30,6 +31,7 @@ export interface Card {
     x: number;
     y: number;
     locked: boolean
+    tapped: boolean
 }
 
 export interface CardUpdateData {
