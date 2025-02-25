@@ -3,7 +3,7 @@ import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketDa
 import http from 'http';
 
 const server = http.createServer();
-const cardLimit = parseInt(process.env.CARD_LIMIT || '10', 10);
+const cardLimit = parseInt(process.env.CARD_LIMIT || '10', 50);
 
 const io = new Server<
     ClientToServerEvents,
@@ -40,8 +40,9 @@ io.on('connection', (socket) => {
             });
 
             
+            // Just reset cards if it exceeds the limit
             if (cards.length > cardLimit) {
-                cards.shift();
+                cards = [];
             }
 
             console.log(cards);
