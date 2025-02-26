@@ -10,7 +10,7 @@ export async function fetchCard(cardName?: string): Promise<Card | null> {
     try {
         const requestURL = `${scryfallURL}${
             cardName 
-            ? `/named?exact=${encodeURIComponent(cardName)}`
+            ? `/named?fuzzy=${encodeURIComponent(cardName)}`
             : '/random'
         }`;
 
