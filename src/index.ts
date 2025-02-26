@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
             const card = await fetchCard(cardData?.name);
 
             if (!card) {
-                // socket.emit('error', 'Failed to fetch card');
+                socket.emit('error', 'Failed to fetch card. Make sure the card name is correct.');
                 return;
             }
 
@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
 
         } catch (error) {
             console.error('Error fetching card:', error);
-            // socket.emit('error', 'Internal server error');
+            socket.emit('error', 'Failed to fetch card. Make sure the card name is correct.');
         }
     });
 
