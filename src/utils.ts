@@ -14,6 +14,8 @@ export async function fetchCard(cardName?: string): Promise<Card | null> {
             : '/random'
         }`;
 
+        console.log('Fetching card:', requestURL);
+
         const response = await fetch(requestURL);
         const cardJSON = await response.json();
 
