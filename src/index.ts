@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, Card, CardUpdateData } from "./types";
 import http from 'http';
-import { validateCardIndex, fetchRandomCard } from './utils';
+import { fetchCard, validateCardIndex } from './utils';
 import { RateLimiter } from './rateLimiter';
 
 const server = http.createServer();
@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
 
     console.log('a user connected');
 
-    socket.on('newCard', async () => {
+    socket.on('newCard', async (cardData: { name?: string }) => {
         if (!rateLimiter.tryRequest(socket.id)) {
             // socket.emit('error', 'Rate limit exceeded. Please wait before requesting more cards.');
             return;
@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
         console.log("Requested by socket: ", socket.id);
 
         try {
-            const card = await fetchRandomCard();
+            const card = await fetchCard(cardData?.name);
 
             if (!card) {
                 // socket.emit('error', 'Failed to fetch card');

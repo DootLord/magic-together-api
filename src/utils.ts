@@ -1,12 +1,20 @@
 import { Card } from './types';
 
+const scryfallURL = 'https://api.scryfall.com/cards';
+
 export function validateCardIndex(index: number, length: number): boolean {
     return index >= 0 && index < length;
 };
 
-export async function fetchRandomCard(): Promise<Card | null> {
+export async function fetchCard(cardName?: string): Promise<Card | null> {
     try {
-        const response = await fetch('https://api.scryfall.com/cards/random');
+        const requestURL = `${scryfallURL}${
+            cardName 
+            ? `/named?exact=${encodeURIComponent(cardName)}`
+            : '/random'
+        }`;
+
+        const response = await fetch(requestURL);
         const cardJSON = await response.json();
 
         return {
