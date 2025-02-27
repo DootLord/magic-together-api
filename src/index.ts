@@ -23,23 +23,16 @@ const io = new Server<
 });
 
 let cards: Card[] = [];
+let decks: string[][] = [];
 
 io.on('connection', (socket) => {
     socket.emit('cards', cards);
 
     console.log('a user connected');
 
-    socket.on('newCard', async (cardData: { name?: string }) => {
-        if (!rateLimiter.tryRequest(socket.id)) {
-            // socket.emit('error', 'Rate limit exceeded. Please wait before requesting more cards.');
-            return;
-        }
-
-        console.log('Generating new card');
-        console.log("Requested by socket: ", socket.id);
-
+    async function createNewCard(name: string) {
         try {
-            const card = await fetchCard(cardData?.name);
+            const card = await fetchCard(name);
 
             if (!card) {
                 socket.emit('error', 'Failed to fetch card. Make sure the card name is correct.');
@@ -59,7 +52,50 @@ io.on('connection', (socket) => {
             console.error('Error fetching card:', error);
             socket.emit('error', 'Failed to fetch card. Make sure the card name is correct.');
         }
+    }
+
+    socket.on('newCard', async (cardData: { name?: string }) => {
+        if (!rateLimiter.tryRequest(socket.id)) {
+            // socket.emit('error', 'Rate limit exceeded. Please wait before requesting more cards.');
+            return;
+        }
+
+        console.log('Generating new card');
+        console.log("Requested by socket: ", socket.id);
+
+        await createNewCard(cardData.name || 'Island');
     });
+
+    // Cards should be a new line separated list of card names
+    socket.on('newDeck', async (deckData: { cards: string }) => {
+        const deck = deckData.cards.split('\n').map((cardName) => (cardName.trim()));
+        console.log('Generating new deck with', deck.length, 'cards');
+        decks.push(deck);
+    })
+
+    socket.on("playTopCardOfDeck", (playData: { deckIndex: number }) => {
+        const deckIndex = playData.deckIndex;
+        console.log(`Playing top card of deck ${deckIndex}`);
+
+        if (!validateCardIndex(deckIndex, decks.length)) {
+            console.error('Invalid deck index');
+            return;
+        }
+
+        if (decks[deckIndex].length === 0) {
+            console.error('Deck is empty');
+            return;
+        }
+
+        const card = decks[deckIndex].shift();
+
+        if (!card) {
+            console.error('Failed to play card');
+            return;
+        }
+
+        createNewCard(card);
+    })
 
     socket.on('clear', async () => {
         console.log('Clearing all cards');
