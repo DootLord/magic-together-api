@@ -86,6 +86,7 @@ io.on('connection', (socket) => {
             return parseCardListEntry(cardLine);
         });
         console.log('Generating new deck with', deck.length, 'cards');
+        console.log(JSON.stringify(deck));
         decks.push(deck);
     })
 
