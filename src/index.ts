@@ -89,8 +89,8 @@ io.on('connection', (socket) => {
         decks.push(deck);
     })
 
-    socket.on("playTopCardOfDeck", (playData: { deckIndex: number }) => {
-        const deckIndex = playData.deckIndex;
+    socket.on("playTopCardOfDeck", (playData: { index: number }) => {
+        const deckIndex = playData.index;
         console.log(`Playing top card of deck ${deckIndex}`);
 
         if (!validateCardIndex(deckIndex, decks.length)) {
