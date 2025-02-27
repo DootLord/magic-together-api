@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, Card, CardUpdateData } from "./types";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, Card, CardUpdateData, IDeckInfo } from "./types";
 import http from 'http';
 import { fetchCard, validateCardIndex } from './utils';
 import { RateLimiter } from './rateLimiter';
@@ -24,6 +24,8 @@ const io = new Server<
 
 let cards: Card[] = [];
 let decks: string[][] = [];
+// deckList is a reference to a deck in the decks array
+let decksInfo: IDeckInfo[] = [];
 
 function parseCardListEntry(cardLine: string): string[] {
     const trimmedLine = cardLine.trim(); // Remove leading/trailing whitespace
@@ -81,18 +83,34 @@ io.on('connection', (socket) => {
     });
 
     // Cards should be a new line separated list of card names
-    socket.on('newDeck', async (deckData: { cards: string }) => {
-        const deck = deckData.cards.split('\n').flatMap((cardLine) => {
+    socket.on('newDeck', async (deckData: { deckName: string, deckList: string }) => {
+        const deck = deckData.deckList.split('\n').flatMap((cardLine) => {
             return parseCardListEntry(cardLine);
         });
+        const deckIndex = decks.length;
         console.log('Generating new deck with', deck.length, 'cards');
-        decks.push(deck);
-        console.log(JSON.stringify(decks));
+        decks[deckIndex] = deck;
+        decksInfo.push({ deckName: deckData.deckName, deckListIndex: deckIndex, date: new Date() });
 
+        console.log(JSON.stringify(decksInfo));
+        console.log(JSON.stringify(decks));
     })
 
-    socket.on("playTopCardOfDeck", (playData: { index: number }) => {
-        const deckIndex = playData.index;
+    socket.on('getDecks', () => {
+        const deckListData = decksInfo.map((deck, index) => {
+            return { deckName: decksInfo[index].deckName, deckListIndex: index, date: decksInfo[index].date, cardCount: decks[index].length };
+        })
+        socket.emit('decks', deckListData);
+    })
+
+    socket.on("playTopCardOfDeck", () => {
+        const deckIndex = socket.data.selectedDeckIndex;
+
+        if (deckIndex === undefined) {
+            console.error('No deck selected for socket at ip', socket.handshake.address);
+            return
+        }
+
         console.log(`Playing top card of deck ${deckIndex}`);
 
         if (!validateCardIndex(deckIndex, decks.length)) {
@@ -114,6 +132,21 @@ io.on('connection', (socket) => {
 
         createNewCard(card);
     })
+
+    socket.on('selectDeck', (data: { index: number }) => {
+        const index = data.index;
+        console.log(`Selecting deck ${index}`);
+        console.log(`Length of decks array: ${decks.length}`);
+
+        if (!validateCardIndex(data.index, decks.length)) {
+            socket.emit('error', 'Invalid deck index');
+            return;
+        }
+
+        socket.data.selectedDeckIndex = index;
+        socket.emit('deckSelected', index);
+        console.log(`Socket ${socket.id} selected deck ${socket.data.selectedDeckIndex}`);
+    });
 
     socket.on('clear', async () => {
         console.log('Clearing all cards');
