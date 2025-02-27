@@ -25,6 +25,20 @@ const io = new Server<
 let cards: Card[] = [];
 let decks: string[][] = [];
 
+function parseCardListEntry(cardLine: string): string[] {
+    const trimmedLine = cardLine.trim(); // Remove leading/trailing whitespace
+    if (!trimmedLine) return []; // Skip empty lines
+
+    // Parse the count and card name
+    const [countStr, ...cardNameParts] = trimmedLine.split(/\s+/);
+    const count = parseInt(countStr); // NaN if count is not a number, make sure we're actually using a number
+
+    if (isNaN(count) || cardNameParts.length === 0) return []; // Skip invalid lines
+
+    const cardName = cardNameParts.join(' '); // Rejoin the card name parts
+    return new Array(count).fill(cardName); // Create an array of length count, filled with cardName
+}
+
 io.on('connection', (socket) => {
     socket.emit('cards', cards);
 
@@ -68,7 +82,9 @@ io.on('connection', (socket) => {
 
     // Cards should be a new line separated list of card names
     socket.on('newDeck', async (deckData: { cards: string }) => {
-        const deck = deckData.cards.split('\n').map((cardName) => (cardName.trim()));
+        const deck = deckData.cards.split('\n').flatMap((cardLine) => {
+            return parseCardListEntry(cardLine);
+        });
         console.log('Generating new deck with', deck.length, 'cards');
         decks.push(deck);
     })
