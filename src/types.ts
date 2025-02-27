@@ -11,7 +11,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
     newCard: (cardData: { name: string }) => void;
     newDeck: (deckData: { cards: string }) => void;
-    playTopCardOfDeck: (playData: { deckIndex: number }) => void;
+    playTopCardOfDeck: (playData: { index: number }) => void;
     tap: (cardUpdateData: { index: number }) => void;
     cardPositionChange: (cardUpdateData: CardUpdateData) => void;
     clear: () => void;
